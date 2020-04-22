@@ -1,13 +1,111 @@
 <html>
 
 <head>
-  <title>Express</title>
-  <link rel="stylesheet" href="/stylesheets/style.css">
-</head>
+  <title>mpl</title>
+  <style>
+    body {
+      padding: 50px;
+      font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    }
 
+    a {
+      color: #00B7FF;
+    }
+
+    .record:hover {
+      background-color: red;
+      cursor: pointer;
+    }
+  </style>
+  <script>
+    const buildList = (data) => {
+      const thead = document.createElement('thead');
+      const theadTr = document.createElement('tr');
+      const nameTh = document.createElement('th');
+      nameTh.innerText = 'Name';
+      const actionTh = document.createElement('th');
+      actionTh.innerText = 'Action';
+      theadTr.appendChild(nameTh);
+      theadTr.appendChild(actionTh);
+      thead.appendChild(theadTr);
+      //
+      const tbody = document.createElement('tbody');
+      data.forEach(m => {
+        const tbodyTr = document.createElement('tr');
+        tbodyTr.setAttribute('class', 'record')
+        const nameTd = document.createElement('td');
+        nameTd.innerText = m;
+        nameTd.addEventListener('click', () => {
+          play(m);
+        });
+        const actionTd = document.createElement('td');
+        actionTd.innerText = '';
+        tbodyTr.appendChild(nameTd);
+        tbodyTr.appendChild(actionTd);
+        tbody.appendChild(tbodyTr);
+      });
+      //
+      const listEl = document.getElementById('list');
+      listEl.innerHTML = '';
+      listEl.append(thead);
+      listEl.append(tbody);
+      listEl.hidden = false;
+    };
+    //
+    const onSearch = () => {
+      const loaderEl = document.getElementById('loader');
+      const listEl = document.getElementById('list');
+      loaderEl.hidden = false;
+      listEl.hidden = true;
+      //
+      const user = document.getElementById('user').value;
+      const folder = document.getElementById('folder').value;
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", (e) => {
+        if (e.target.status === 200) {
+          buildList(JSON.parse(e.target.response));
+        } else {
+          alert('error');
+        }
+        loaderEl.hidden = true;
+      });
+      xhr.open('GET', `/list/${user}/${folder}`);
+      xhr.send();
+    }
+    //
+    const play = (music) => {
+      const user = document.getElementById('user').value;
+      const folder = document.getElementById('folder').value;
+      const xhr = new XMLHttpRequest();
+      xhr.addEventListener("load", (e) => {
+        const audio = document.getElementById('player');
+        audio.pause();
+        audio.src = URL.createObjectURL("data:video/webm;base64," + btoa(e.target.responseText));
+        audio.play();
+      });
+      xhr.open('GET', `/file/${user}/${folder}/${music}`);
+      xhr.send();
+    }
+  </script>
+</head>
 <body>
-  <h1>Express</h1>
-  <p>Welcome to Express</p>
+<audio id="player" controls>
+  Your browser does not support the audio element.
+</audio>
+<input id="user" placeholder="user" value="beso9595">
+<br>
+<br>
+<select id="folder">
+  <option value="Music">Music</option>
+  <option value="Downloads" selected>Downloads</option>
+</select>
+<br>
+<br>
+<button onclick="onSearch()">Search</button>
+<br>
+<br>
+<div id="loader" hidden>Loading..</div>
+<table id="list"></table>
 </body>
 
 </html>
