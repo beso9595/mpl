@@ -52,7 +52,6 @@
             loaderEl.hidden = false;
             listEl.hidden = true;
             //
-            const user = document.getElementById('user').value;
             const folder = document.getElementById('folder').value;
             const xhr = new XMLHttpRequest();
             xhr.addEventListener("load", (e) => {
@@ -63,16 +62,15 @@
                 }
                 loaderEl.hidden = true;
             });
-            xhr.open('GET', `/list/${user}/${folder}`);
+            xhr.open('GET', `/list/${folder}`);
             xhr.send();
         }
         //
         const play = music => {
-            const user = document.getElementById('user').value;
             const folder = document.getElementById('folder').value;
             const audio = document.getElementById('player');
             audio.pause();
-            audio.src = `/file/${user}/${folder}/${music}`;
+            audio.src = `/file/${folder}/${music}`;
             audio.play();
         }
     </script>
@@ -81,9 +79,6 @@
 <audio id="player" src="" style="width: 100%" controls>
     Your browser does not support the audio element.
 </audio>
-<br>
-<br>
-<input id="user" placeholder="user" value="beso9595">
 <br>
 <br>
 <select id="folder">
