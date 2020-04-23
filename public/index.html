@@ -1,11 +1,13 @@
 <html>
 
 <head>
+    <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACLklEQVR42mNkoBAw4pJg0rBjZRZXUhWUVdXklFTR4hBT0OTg5NGU+Hhrzs7qwKl4DYjY/HTmva9MiayMjKw/fv5h+P/nLwMDEH//8Zvh9fl9HW/mZ1biNcBt9ZP9D74wOvz+9Yfh3++/DD9+/GL49OUXw/dvvxgYbh/qYFhfhN8Ah6UP9h948seB4fcfBoaf3xkYPr15zfDx1VURXh72Nw9uHmTYXIbfAJsFd/Yf2bjiJMOtw7sYXt+/wvDq1iuQuHNOX+6+ez+l/m+rJGDA7Jv7j/RmlTPc2HsKWdw5qyd33+3vUv931xIwYPrV/Uf6cyoYbu0/iWJARlfuvpvfpP7vbyBgwKSL+49MyqtguHMQ1YDUDqABX6T+H2rBb4B139n9R6cWlTHcPXgaJqZk4i4jYxYUe/jCA77/x9qxG6Bj7sDxm19Bh88hc8rpOWWZDPcOngeJ183etfTaB96oq/ffM1w/c6CD4VQXpgHq7vEKARk1h888/Cpz48knhqdrqvUYHhy+omfuKM3pUPPo2oP3jJ8//2BgeLC3heHa/FoMA8Kbl5ef/6PUcffZJ4a/P34yMGzM0GH49OQ+KxuHgJR/z5mHn3klGT49/cRwttud4ef7ExgGiGtZ+X0yLVrz/RcjK8O1TfsYLi6MAQr/AqlhZGaR/s/Gb8rw48Mphv9/rwDF/mELAxZGFjbd/wxMkgx/fpwD8j8DMTATMPyHaoDh/8jhhi0WkMX+MxAAANiK9xHqut4pAAAAAElFTkSuQmCC"/>
     <title>mpl</title>
     <style>
         body {
             padding: 50px;
             font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+            background-color: #22818b;
         }
 
         a {
@@ -13,28 +15,36 @@
         }
 
         .record:hover {
-            background-color: red;
+            background-color: #ce6161;
             cursor: pointer;
         }
     </style>
     <script>
+        let filterTimeout = null;
+        //
         const buildList = data => {
             const thead = document.createElement('thead');
             const theadTr = document.createElement('tr');
+            const numberTh = document.createElement('th');
+            numberTh.innerText = 'Number';
             const nameTh = document.createElement('th');
             nameTh.innerText = 'Name';
+            theadTr.appendChild(numberTh);
             theadTr.appendChild(nameTh);
             thead.appendChild(theadTr);
             //
             const tbody = document.createElement('tbody');
-            data.forEach(m => {
+            data.forEach((m, i) => {
                 const tbodyTr = document.createElement('tr');
                 tbodyTr.setAttribute('class', 'record')
+                const numberTr = document.createElement('td');
+                numberTr.innerText = i + 1;
                 const nameTd = document.createElement('td');
                 nameTd.innerText = m;
                 nameTd.addEventListener('click', () => {
                     play(m);
                 });
+                tbodyTr.appendChild(numberTr);
                 tbodyTr.appendChild(nameTd);
                 tbody.appendChild(tbodyTr);
             });
@@ -45,11 +55,10 @@
             listEl.append(tbody);
             listEl.hidden = false;
         };
-        //
         const onSearch = () => {
-            const loaderEl = document.getElementById('loader');
+            const loadingEl = document.getElementById('loading');
             const listEl = document.getElementById('list');
-            loaderEl.hidden = false;
+            loadingEl.hidden = false;
             listEl.hidden = true;
             //
             const folder = document.getElementById('folder').value;
@@ -60,12 +69,11 @@
                 } else {
                     alert('error');
                 }
-                loaderEl.hidden = true;
+                loadingEl.hidden = true;
             });
             xhr.open('GET', `/list/${folder}`);
             xhr.send();
         }
-        //
         const play = music => {
             const folder = document.getElementById('folder').value;
             const audio = document.getElementById('player');
@@ -73,6 +81,24 @@
             audio.src = `/file/${folder}/${music}`;
             audio.play();
         }
+        const onFilterChange = () => {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const filteringEl = document.getElementById('filtering');
+                const listEl = document.getElementById('list');
+                filteringEl.hidden = false;
+                listEl.hidden = true;
+                const filterValue = document.getElementById('filter').value;
+                const recordEls = document.getElementsByClassName('record');
+                const len = recordEls.length;
+                for (let i = 0; i < len; i++) {
+                    const el = recordEls[i];
+                    el.hidden = !(el.childNodes[1].innerText).toLowerCase().includes(filterValue.toLowerCase());
+                }
+                filteringEl.hidden = true;
+                listEl.hidden = false;
+            }, 500);
+        };
     </script>
 </head>
 <body>
@@ -82,15 +108,19 @@
 <br>
 <br>
 <select id="folder">
-    <option value="Music">Music</option>
-    <option value="Downloads" selected>Downloads</option>
+    <option value="Music" selected>Music</option>
+    <option value="Downloads">Downloads</option>
 </select>
 <br>
 <br>
 <button onclick="onSearch()">Search</button>
 <br>
 <br>
-<div id="loader" hidden>Loading..</div>
+<input id="filter" placeholder="Filter" onkeyup="onFilterChange()">
+<br>
+<br>
+<div id="filtering" hidden>Filtering..</div>
+<div id="loading" hidden>Loading..</div>
 <table id="list"></table>
 </body>
 
