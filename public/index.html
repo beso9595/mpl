@@ -1,7 +1,8 @@
 <html>
 
 <head>
-    <link rel="shortcut icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACLklEQVR42mNkoBAw4pJg0rBjZRZXUhWUVdXklFTR4hBT0OTg5NGU+Hhrzs7qwKl4DYjY/HTmva9MiayMjKw/fv5h+P/nLwMDEH//8Zvh9fl9HW/mZ1biNcBt9ZP9D74wOvz+9Yfh3++/DD9+/GL49OUXw/dvvxgYbh/qYFhfhN8Ah6UP9h948seB4fcfBoaf3xkYPr15zfDx1VURXh72Nw9uHmTYXIbfAJsFd/Yf2bjiJMOtw7sYXt+/wvDq1iuQuHNOX+6+ez+l/m+rJGDA7Jv7j/RmlTPc2HsKWdw5qyd33+3vUv931xIwYPrV/Uf6cyoYbu0/iWJARlfuvpvfpP7vbyBgwKSL+49MyqtguHMQ1YDUDqABX6T+H2rBb4B139n9R6cWlTHcPXgaJqZk4i4jYxYUe/jCA77/x9qxG6Bj7sDxm19Bh88hc8rpOWWZDPcOngeJ183etfTaB96oq/ffM1w/c6CD4VQXpgHq7vEKARk1h888/Cpz48knhqdrqvUYHhy+omfuKM3pUPPo2oP3jJ8//2BgeLC3heHa/FoMA8Kbl5ef/6PUcffZJ4a/P34yMGzM0GH49OQ+KxuHgJR/z5mHn3klGT49/cRwttud4ef7ExgGiGtZ+X0yLVrz/RcjK8O1TfsYLi6MAQr/AqlhZGaR/s/Gb8rw48Mphv9/rwDF/mELAxZGFjbd/wxMkgx/fpwD8j8DMTATMPyHaoDh/8jhhi0WkMX+MxAAANiK9xHqut4pAAAAAElFTkSuQmCC"/>
+    <link rel="shortcut icon"
+          href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAACLklEQVR42mNkoBAw4pJg0rBjZRZXUhWUVdXklFTR4hBT0OTg5NGU+Hhrzs7qwKl4DYjY/HTmva9MiayMjKw/fv5h+P/nLwMDEH//8Zvh9fl9HW/mZ1biNcBt9ZP9D74wOvz+9Yfh3++/DD9+/GL49OUXw/dvvxgYbh/qYFhfhN8Ah6UP9h948seB4fcfBoaf3xkYPr15zfDx1VURXh72Nw9uHmTYXIbfAJsFd/Yf2bjiJMOtw7sYXt+/wvDq1iuQuHNOX+6+ez+l/m+rJGDA7Jv7j/RmlTPc2HsKWdw5qyd33+3vUv931xIwYPrV/Uf6cyoYbu0/iWJARlfuvpvfpP7vbyBgwKSL+49MyqtguHMQ1YDUDqABX6T+H2rBb4B139n9R6cWlTHcPXgaJqZk4i4jYxYUe/jCA77/x9qxG6Bj7sDxm19Bh88hc8rpOWWZDPcOngeJ183etfTaB96oq/ffM1w/c6CD4VQXpgHq7vEKARk1h888/Cpz48knhqdrqvUYHhy+omfuKM3pUPPo2oP3jJ8//2BgeLC3heHa/FoMA8Kbl5ef/6PUcffZJ4a/P34yMGzM0GH49OQ+KxuHgJR/z5mHn3klGT49/cRwttud4ef7ExgGiGtZ+X0yLVrz/RcjK8O1TfsYLi6MAQr/AqlhZGaR/s/Gb8rw48Mphv9/rwDF/mELAxZGFjbd/wxMkgx/fpwD8j8DMTATMPyHaoDh/8jhhi0WkMX+MxAAANiK9xHqut4pAAAAAElFTkSuQmCC"/>
     <title>mpl</title>
     <style>
         body {
@@ -21,6 +22,26 @@
     </style>
     <script>
         let filterTimeout = null;
+        let lastPlayedMusicNumber = null;
+        let audioEl = null;
+        let folderEl = null;
+        let playNextEl = null;
+        let filterEl = null;
+        let loadingEl = null;
+        let filteringEl = null;
+        let listEl = null;
+        //
+        window.onload = () => {
+            audioEl = document.getElementById('player');
+            folderEl = document.getElementById('folder');
+            playNextEl = document.getElementById('playNext');
+            filteringEl = document.getElementById('filtering')
+            loadingEl = document.getElementById('loading');
+            filterEl = document.getElementById('filter');
+            listEl = document.getElementById('list');
+            //
+            audioEl.onended = onPlayerEnded;
+        };
         //
         const buildList = data => {
             const thead = document.createElement('thead');
@@ -38,30 +59,27 @@
                 const tbodyTr = document.createElement('tr');
                 tbodyTr.setAttribute('class', 'record')
                 const numberTr = document.createElement('td');
+                const number = i + 1;
                 numberTr.innerText = i + 1;
                 const nameTd = document.createElement('td');
                 nameTd.innerText = m;
                 nameTd.addEventListener('click', () => {
-                    play(m);
+                    play(m, number);
                 });
                 tbodyTr.appendChild(numberTr);
                 tbodyTr.appendChild(nameTd);
                 tbody.appendChild(tbodyTr);
             });
             //
-            const listEl = document.getElementById('list');
             listEl.innerHTML = '';
             listEl.append(thead);
             listEl.append(tbody);
             listEl.hidden = false;
         };
         const onSearch = () => {
-            const loadingEl = document.getElementById('loading');
-            const listEl = document.getElementById('list');
             loadingEl.hidden = false;
             listEl.hidden = true;
             //
-            const folder = document.getElementById('folder').value;
             const xhr = new XMLHttpRequest();
             xhr.addEventListener("load", (e) => {
                 if (e.target.status === 200) {
@@ -71,24 +89,21 @@
                 }
                 loadingEl.hidden = true;
             });
-            xhr.open('GET', `/list/${folder}`);
+            xhr.open('GET', `/list/${folderEl.value}`);
             xhr.send();
         }
-        const play = music => {
-            const folder = document.getElementById('folder').value;
-            const audio = document.getElementById('player');
-            audio.pause();
-            audio.src = `/file/${folder}/${music}`;
-            audio.play();
+        const play = (music, number) => {
+            lastPlayedMusicNumber = number;
+            audioEl.pause();
+            audioEl.src = `/file/${folderEl.value}/${music}`;
+            audioEl.play();
         }
         const onFilterChange = () => {
             clearTimeout(filterTimeout);
             filterTimeout = setTimeout(() => {
-                const filteringEl = document.getElementById('filtering');
-                const listEl = document.getElementById('list');
                 filteringEl.hidden = false;
                 listEl.hidden = true;
-                const filterValue = document.getElementById('filter').value;
+                const filterValue = filterEl.value;
                 const recordEls = document.getElementsByClassName('record');
                 const len = recordEls.length;
                 for (let i = 0; i < len; i++) {
@@ -98,6 +113,19 @@
                 filteringEl.hidden = true;
                 listEl.hidden = false;
             }, 500);
+        };
+        const onPlayerEnded = () => {
+            if (playNextEl.checked) {
+                const recordEls = document.getElementsByClassName('record');
+                const len = recordEls.length;
+                for (let i = 0; i < len; i++) {
+                    if (parseInt(recordEls[i].childNodes[0].innerText, 10) === lastPlayedMusicNumber) {
+                        const nextEl = recordEls[i !== (len - 1) ? (i + 1) : 0];
+                        play(nextEl.childNodes[1].innerText, parseInt(nextEl.childNodes[0].innerText, 10));
+                        break;
+                    }
+                }
+            }
         };
     </script>
 </head>
@@ -111,6 +139,8 @@
     <option value="Music" selected>Music</option>
     <option value="Downloads">Downloads</option>
 </select>
+<input id="playNext" type="checkbox" checked>
+<label for="playNext">Loop</label>
 <br>
 <br>
 <button onclick="onSearch()">Search</button>
