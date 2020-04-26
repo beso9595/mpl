@@ -16,13 +16,17 @@
         }
 
         .record:hover {
-            background-color: #ce6161;
+            background-color: #8fa4a7;
             cursor: pointer;
+        }
+
+        .playing {
+            background-color: #ce6161 !important;
         }
     </style>
     <script>
         let filterTimeout = null;
-        let lastPlayedMusicNumber = null;
+        let lastPlayedEl = null;
         let audioEl = null;
         let folderEl = null;
         let playNextEl = null;
@@ -63,8 +67,8 @@
                 numberTr.innerText = i + 1;
                 const nameTd = document.createElement('td');
                 nameTd.innerText = m;
-                nameTd.addEventListener('click', () => {
-                    play(m, number);
+                nameTd.addEventListener('click', (e) => {
+                    play(e.path[1]);
                 });
                 tbodyTr.appendChild(numberTr);
                 tbodyTr.appendChild(nameTd);
@@ -92,10 +96,14 @@
             xhr.open('GET', `/list/${folderEl.value}`);
             xhr.send();
         }
-        const play = (music, number) => {
-            lastPlayedMusicNumber = number;
+        const play = (rowEl) => {
+            rowEl.classList.add('playing');
+            if (lastPlayedEl) {
+                lastPlayedEl.classList.remove('playing');
+            }
+            lastPlayedEl = rowEl;
             audioEl.pause();
-            audioEl.src = `/file/${folderEl.value}/${music}`;
+            audioEl.src = `/file/${folderEl.value}/${rowEl.childNodes[1].innerText}`;
             audioEl.play();
         }
         const onFilterChange = () => {
@@ -118,10 +126,10 @@
             if (playNextEl.checked) {
                 const recordEls = document.getElementsByClassName('record');
                 const len = recordEls.length;
+                const lastPlayedElId = parseInt(lastPlayedEl.childNodes[0].innerText, 10)
                 for (let i = 0; i < len; i++) {
-                    if (parseInt(recordEls[i].childNodes[0].innerText, 10) === lastPlayedMusicNumber) {
-                        const nextEl = recordEls[i !== (len - 1) ? (i + 1) : 0];
-                        play(nextEl.childNodes[1].innerText, parseInt(nextEl.childNodes[0].innerText, 10));
+                    if (parseInt(recordEls[i].childNodes[0].innerText, 10) === lastPlayedElId) {
+                        play(recordEls[i !== (len - 1) ? (i + 1) : 0]);
                         break;
                     }
                 }
