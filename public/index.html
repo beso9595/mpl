@@ -23,6 +23,11 @@
         .playing {
             background-color: #ce6161 !important;
         }
+
+        .listContainer {
+            overflow: auto;
+            height: 700px;
+        }
     </style>
     <script>
         let filterTimeout = null;
@@ -143,23 +148,31 @@
 </audio>
 <br>
 <br>
-<select id="folder">
-    <option value="Music" selected>Music</option>
-    <option value="Downloads">Downloads</option>
-</select>
-<input id="playNext" type="checkbox" checked>
-<label for="playNext">Loop</label>
-<br>
-<br>
-<button onclick="onSearch()">Search</button>
-<br>
-<br>
-<input id="filter" placeholder="Filter" onkeyup="onFilterChange()">
-<br>
-<br>
-<div id="filtering" hidden>Filtering..</div>
-<div id="loading" hidden>Loading..</div>
-<table id="list"></table>
+<div style="display: flex;">
+    <div style="margin-right: 100px;">
+        <select id="folder">
+            <option value="Music" selected>Music</option>
+            <option value="Downloads">Downloads</option>
+        </select>
+        <br>
+        <br>
+        <input id="playNext" type="checkbox" checked>
+        <label for="playNext">Loop</label>
+        <br>
+        <br>
+        <button onclick="onSearch()">Search</button>
+    </div>
+    <div style="flex: 1;">
+        <input id="filter" placeholder="Filter" onkeyup="onFilterChange()" style="width: 90%;">
+        <br>
+        <br>
+        <div id="filtering" hidden>Filtering..</div>
+        <div id="loading" hidden>Loading..</div>
+        <div class="listContainer">
+            <table id="list"></table>
+        </div>
+    </div>
+</div>
 </body>
 
 </html>
