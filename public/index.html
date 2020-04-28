@@ -31,6 +31,7 @@
     </style>
     <script>
         let filterTimeout = null;
+        let musicList = [];
         let lastPlayedEl = null;
         let audioEl = null;
         let folderEl = null;
@@ -88,11 +89,13 @@
         const onSearch = () => {
             loadingEl.hidden = false;
             listEl.hidden = true;
+            filterEl.value = '';
             //
             const xhr = new XMLHttpRequest();
             xhr.addEventListener("load", (e) => {
                 if (e.target.status === 200) {
-                    buildList(JSON.parse(e.target.response));
+                    musicList = JSON.parse(e.target.response);
+                    buildList(musicList);
                 } else {
                     alert('error');
                 }
@@ -117,12 +120,7 @@
                 filteringEl.hidden = false;
                 listEl.hidden = true;
                 const filterValue = filterEl.value;
-                const recordEls = document.getElementsByClassName('record');
-                const len = recordEls.length;
-                for (let i = 0; i < len; i++) {
-                    const el = recordEls[i];
-                    el.hidden = !(el.childNodes[1].innerText).toLowerCase().includes(filterValue.toLowerCase());
-                }
+                buildList(musicList.filter(x => x.toLowerCase().includes(filterValue.toLowerCase())));
                 filteringEl.hidden = true;
                 listEl.hidden = false;
             }, 500);
