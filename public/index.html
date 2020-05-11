@@ -69,7 +69,6 @@
                 const tbodyTr = document.createElement('tr');
                 tbodyTr.setAttribute('class', 'record')
                 const numberTr = document.createElement('td');
-                const number = i + 1;
                 numberTr.innerText = i + 1;
                 const nameTd = document.createElement('td');
                 nameTd.innerText = m;
@@ -111,7 +110,7 @@
             }
             lastPlayedEl = rowEl;
             audioEl.pause();
-            audioEl.src = `/file/${folderEl.value}/${rowEl.childNodes[1].innerText}`;
+            audioEl.src = `/file/${folderEl.value}/${rowEl.childNodes[1].childNodes[0].nodeValue}`;
             audioEl.play();
         }
         const onFilterChange = () => {

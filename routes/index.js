@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 
-router.get('/', (req, res, next) => {
+router.get('/', (req, res) => {
     res.render('index', {title: 'Express'});
 });
 
-router.get('/list/:dir', (req, res, next) => {
+router.get('/list/:dir', (req, res) => {
     fs.readdir(`/home/${process.env.USER}/${req.params.dir}`, (err, files) => {
         if (err) {
             res.status(500);
@@ -20,9 +20,8 @@ router.get('/list/:dir', (req, res, next) => {
     });
 });
 
-router.get('/file/:dir/:title', (req, res, next) => {
-    const path = `/home/${process.env.USER}/${req.params.dir}/${req.params.title}`;
-    res.download(path);
+router.get('/file/:dir/:title', (req, res) => {
+    res.download(`/home/${process.env.USER}/${req.params.dir}/${req.params.title}`);
 });
 
 
