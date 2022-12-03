@@ -1,13 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const fs = require('fs');
+const os = require('os');
+
+const osUserDir = os.platform() === 'darwin' ? 'Users' : 'home';
+const path = `/${osUserDir}/${process.env.USER}`;
 
 router.get('/', (req, res) => {
     res.render('index', {title: 'Express'});
 });
 
 router.get('/list/:dir', (req, res) => {
-    fs.readdir(`/home/${process.env.USER}/${req.params.dir}`, (err, files) => {
+    fs.readdir(`${path}/${req.params.dir}`, (err, files) => {
         if (err) {
             res.status(500);
             res.json();
@@ -21,7 +25,7 @@ router.get('/list/:dir', (req, res) => {
 });
 
 router.get('/file/:dir/:title', (req, res) => {
-    res.download(`/home/${process.env.USER}/${req.params.dir}/${req.params.title}`);
+    res.download(`${path}/${req.params.dir}/${req.params.title}`);
 });
 
 

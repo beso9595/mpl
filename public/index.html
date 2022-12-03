@@ -104,10 +104,10 @@
             xhr.send();
         }
         const play = (rowEl) => {
-            rowEl.classList.add('playing');
             if (lastPlayedEl) {
                 lastPlayedEl.classList.remove('playing');
             }
+            rowEl.classList.add('playing');
             lastPlayedEl = rowEl;
             audioEl.pause();
             audioEl.src = `/file/${folderEl.value}/${rowEl.childNodes[1].childNodes[0].nodeValue}`;
